@@ -55,7 +55,10 @@ apiKeys=(
 )
 key_index=0
 
-# 压缩处理
+#----- ghostscript 压缩设置 ----- #
+pdfMaxSize=1M # pdf尺寸允许值
+
+# 开始压缩处理
 # Param $folderPath 图片目录
 function compress() {
   folderPath=$1
@@ -224,10 +227,10 @@ function tinypngDownload() {
 function ghostscriptCompress() {
 
   folderPath="$1"
-  fileNum=$(find "$folderPath"  -type f -regex ".*\.pdf$" | wc -l)
+  fileNum=$(find "$folderPath" -type f -regex ".*\.pdf$" -size +"$pdfMaxSize" | wc -l)
   echo -e "\033[35mghostscript\033[0m start compress \033[31m$fileNum\033[0m pdf"
 
-  for FILE in $(find $folderPath -type f -regex ".*\.pdf$"); do
+  for FILE in $(find $folderPath -type f -regex ".*\.pdf$" -size +"$pdfMaxSize"); do
     DEST_ORIG=$(echo $FILE | sed 's%/[^/]*$%/%')
     filename=$(basename $FILE)
     filename=${filename%.*}
@@ -249,7 +252,7 @@ function ghostscriptCompress() {
     fi
 
     Size_HB=$(du -h "$FILE" | cut -f1)
-    
+
     echo -e "End compressing \033[34m$FILE\033[0m fileSize: \033[33m$Size_SRC >> $Size_HB\033[0m "
   done
 
@@ -307,7 +310,7 @@ function checkTool() {
   fi
 
   if [ -n "$check" ]; then
-    echo "安装依赖工具：\033[34m apt install${check} \033[0m"
+    echo -e "安装依赖工具：\033[34m apt install${check} \033[0m"
     exit 0
   fi
 }
